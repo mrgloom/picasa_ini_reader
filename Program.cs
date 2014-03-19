@@ -18,7 +18,6 @@ using System.Text.RegularExpressions;
 
 //надо добавить возможность остановки и продолжения
 //вывод отчётов в консоль + времени выполнения т.к. производительность может деградировать
-//need to store
 namespace picasa_ini_reader
 {
     class Program
@@ -32,8 +31,6 @@ namespace picasa_ini_reader
         //    var size = H5S.getSimpleExtentDims(space);
         //}
 
-        //need to save id for face?
-        //or maybe just extract information?
         public static void GetFaces(string filename,string path)
         {
             //create folder for faces
@@ -49,8 +46,6 @@ namespace picasa_ini_reader
             {
                 string[] str_rects = GetRectStrings(img_rects);
 
-                //их несколько надо как то давать имя
-                //или лучше просто сохранять id(название папки)+сами ректы
                 for (int i = 0; i<str_rects.Length; ++i)
                 {
                     Bitmap img = (Bitmap)Image.FromFile(filename, true);
@@ -73,14 +68,15 @@ namespace picasa_ini_reader
                     resized.Save(crop_path,
                         System.Drawing.Imaging.ImageFormat.Png);
 
-                    //save vector to root dir
+                    //append vector to txt file in root dir
                     string text_path = Directory.GetParent(path).FullName + "\\db.txt";
                     AppendToTxtFile(resized, text_path);
                 }
             }
             catch
             {
-                Console.WriteLine();
+                Console.WriteLine("error: " + Path.GetFileName(Path.GetDirectoryName(path + "\\"))
+                        + " " + Path.GetFileName(filename));
             }
         }
 
@@ -113,7 +109,6 @@ namespace picasa_ini_reader
             }
             return hex.ToString();
         }
-        //appending int vector to text file 
         //need to convert to grey?
         public static void AppendToTxtFile(Bitmap img, string path)
         { 
@@ -148,6 +143,7 @@ namespace picasa_ini_reader
 
         public static string[] GetRectStrings(string str)
         {
+            //example string
             //String text = "faces=rect64(3f845bcb59418507),8e62398ebda8c1a5;rect64(9eb15e89b6b584c1),d10a8325c557b085";
 
             //case sensitive?
@@ -160,9 +156,8 @@ namespace picasa_ini_reader
 
         static void Main(string[] args)
         {
-            //путь к корневой папке должен передаваться через параметры из батника
-            //string path= @"..\..\..\data\";
-            string path = args[0];
+            string path= @"..\..\..\data\";
+            //string path = args[0];
             foreach (string dir in Directory.GetDirectories(path))
             {
                 string[] files = Directory.GetFiles(dir, "*.jpg");
