@@ -12,9 +12,6 @@ using System.Text.RegularExpressions;
 //http://stackoverflow.com/questions/2201393/how-to-reverse-a-rectanglef-to-a-picasa-face-hash
 //https://gist.github.com/fbuchinger/1073823
 
-//how to store information in db?
-//just resize 32x24 and write to text file (.csv) as text ?
-//how to get id from ini?
 
 //надо добавить возможность остановки и продолжения
 //вывод отчётов в консоль + времени выполнения т.к. производительность может деградировать
