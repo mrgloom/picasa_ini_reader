@@ -28,7 +28,7 @@ namespace picasa_ini_reader
         //    var size = H5S.getSimpleExtentDims(space);
         //}
 
-        public static void GetFaces(string filename,string path)
+        public static void GetFaces(string filename,string path, bool resize)
         {
             //create folder for faces
             string dir = path + "\\face";
@@ -58,16 +58,26 @@ namespace picasa_ini_reader
                     rectF.Height = rectF.Height * im_h;
 
                     Bitmap bmpCrop = img.Clone(rectF, img.PixelFormat);
-                    Bitmap resized = new Bitmap(bmpCrop, new Size(24, 32));
-                    //need to remove extension
+
+                    string text_path = Directory.GetParent(path).FullName + "\\db.txt";
                     string crop_path = path + "\\face\\" +
                         Path.GetFileNameWithoutExtension(filename)+"_"+i.ToString()+ "_crop.png";
-                    resized.Save(crop_path,
-                        System.Drawing.Imaging.ImageFormat.Png);
 
-                    //append vector to txt file in root dir
-                    string text_path = Directory.GetParent(path).FullName + "\\db.txt";
-                    AppendToTxtFile(resized, text_path);
+                    if (resize)
+                    {
+                        Bitmap resized = new Bitmap(bmpCrop, new Size(24, 32));
+                        resized.Save(crop_path,
+                            System.Drawing.Imaging.ImageFormat.Png);
+
+                        AppendToTxtFile(resized, text_path);
+                    }
+                    else
+                    {
+                        bmpCrop.Save(crop_path,
+                            System.Drawing.Imaging.ImageFormat.Png);
+
+                        AppendToTxtFile(bmpCrop, text_path);
+                    }
                 }
             }
             catch
@@ -160,7 +170,7 @@ namespace picasa_ini_reader
                 string[] files = Directory.GetFiles(dir, "*.jpg");
 
                 foreach (string filename in files)
-                    GetFaces(filename, dir);
+                    GetFaces(filename, dir, false);
             }
         }
     }
