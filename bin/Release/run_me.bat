@@ -1,1 +1,1 @@
-start picasa_ini_reader.exe D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\data
+start picasa_ini_reader.exe [folder]
