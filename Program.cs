@@ -28,62 +28,72 @@ namespace picasa_ini_reader
         //    var size = H5S.getSimpleExtentDims(space);
         //}
 
-        public static void GetFaces(string filename,string path, bool resize)
+        public static void GetFace(string filename,string path, bool resize)
         {
-            //create folder for faces
-            string dir = path + "\\face";
-            System.IO.Directory.CreateDirectory(dir);
-
-            string ini_path= path+"\\.picasa.ini";
-            IniParser parser = new IniParser(ini_path);
-
-            String img_rects = parser.GetSetting(Path.GetFileName(filename), "faces");
-
             try
             {
-                string[] str_rects = GetRectStrings(img_rects);
+                string ini_path = path + "\\.picasa.ini";
+                IniParser parser = new IniParser(ini_path);//если нету ини файла в папке то падает тут
 
-                for (int i = 0; i<str_rects.Length; ++i)
+                String img_rects = parser.GetSetting(Path.GetFileName(filename), "faces");
+                if(img_rects!=null)
+                try// тут еще похоже не все типы файлов читает
                 {
-                    Bitmap img = (Bitmap)Image.FromFile(filename, true);
+                    string[] str_rects = GetRectStrings(img_rects);
 
-                    RectangleF rectF = GetRectangle(str_rects[i]);
-
-                    int im_w = img.Width;
-                    int im_h = img.Height;
-
-                    rectF.X = rectF.X * im_w;
-                    rectF.Y = rectF.Y * im_h;
-                    rectF.Width = rectF.Width * im_w;
-                    rectF.Height = rectF.Height * im_h;
-
-                    Bitmap bmpCrop = img.Clone(rectF, img.PixelFormat);
-
-                    string text_path = Directory.GetParent(path).FullName + "\\db.txt";
-                    string crop_path = path + "\\face\\" +
-                        Path.GetFileNameWithoutExtension(filename)+"_"+i.ToString()+ "_crop.png";
-
-                    if (resize)
+                    for (int i = 0; i < str_rects.Length; ++i)
                     {
-                        Bitmap resized = new Bitmap(bmpCrop, new Size(24, 32));
-                        resized.Save(crop_path,
-                            System.Drawing.Imaging.ImageFormat.Png);
+                        Bitmap img = (Bitmap)Image.FromFile(filename, true);
 
-                        AppendToTxtFile(resized, text_path);
-                    }
-                    else
-                    {
-                        bmpCrop.Save(crop_path,
-                            System.Drawing.Imaging.ImageFormat.Png);
+                        RectangleF rectF = GetRectangle(str_rects[i]);
 
-                        AppendToTxtFile(bmpCrop, text_path);
+                        int im_w = img.Width;
+                        int im_h = img.Height;
+
+                        rectF.X = rectF.X * im_w;
+                        rectF.Y = rectF.Y * im_h;
+                        rectF.Width = rectF.Width * im_w;
+                        rectF.Height = rectF.Height * im_h;
+
+                        Bitmap bmpCrop = img.Clone(rectF, img.PixelFormat);
+
+                        string text_path = Directory.GetParent(path).FullName + "\\db.txt";
+                        string crop_path = path + "\\face\\" +
+                            Path.GetFileNameWithoutExtension(filename) + "_" + i.ToString() + "_crop.png";
+
+                        //непонятно производиться ли копирование при присвоении?
+                        if (resize)
+                        {
+                            Bitmap resized = new Bitmap(bmpCrop, new Size(24, 32));//вынести в параметры
+                            resized.Save(crop_path,
+                                System.Drawing.Imaging.ImageFormat.Png);
+
+                            Bitmap gr = ConvertGray(resized);
+
+                            AppendToTxtFile(gr, text_path);
+                        }
+                        else
+                        {
+                            bmpCrop.Save(crop_path,
+                                System.Drawing.Imaging.ImageFormat.Png);
+
+                            Bitmap gr = ConvertGray(bmpCrop);
+
+                            AppendToTxtFile(gr, text_path);
+                        }
                     }
                 }
+                catch
+                {
+                    Console.WriteLine("error: " + Path.GetFileName(Path.GetDirectoryName(path + "\\"))
+                            + " " + Path.GetFileName(filename));
+                }
+
             }
             catch
             {
-                Console.WriteLine("error: " + Path.GetFileName(Path.GetDirectoryName(path + "\\"))
-                        + " " + Path.GetFileName(filename));
+                //Console.WriteLine("error: " + Path.GetFileName(Path.GetDirectoryName(path + "\\"))+
+                //    " no .ini file?");
             }
         }
 
@@ -116,28 +126,40 @@ namespace picasa_ini_reader
             }
             return hex.ToString();
         }
-        //need to convert to grey?
+        public static Bitmap ConvertGray(Bitmap Image)
+        {
+            Bitmap grey = new Bitmap(Image.Width, Image.Height);
+            for (int y = 0; y < grey.Height; y++)
+            {
+                for (int x = 0; x < grey.Width; x++)
+                {
+                    Color c = Image.GetPixel(x, y);
+                    int luma = (int)(c.R * 0.3 + c.G * 0.59 + c.B * 0.11);
+                    grey.SetPixel(x, y, Color.FromArgb(luma, luma, luma));
+                }
+            }
+            return grey;
+        }
         public static void AppendToTxtFile(Bitmap img, string path)
-        { 
-            // Specify a pixel format.
-            PixelFormat pxf = PixelFormat.Format24bppRgb;
-
+        {
             // Lock the bitmap's bits.
             Rectangle rect = new Rectangle(0, 0, img.Width, img.Height);
             BitmapData bmpData =
             img.LockBits(rect, ImageLockMode.ReadWrite,
-                         pxf);
+                         img.PixelFormat);
 
             // Get the address of the first line.
             IntPtr ptr = bmpData.Scan0;
 
             // Declare an array to hold the bytes of the bitmap. 
-            // int numBytes = bmp.Width * bmp.Height * 3; 
-            int numBytes = bmpData.Stride * img.Height;
+            int numBytes = Math.Abs(bmpData.Stride) * img.Height;
             byte[] rgbValues = new byte[numBytes];
 
             // Copy the RGB values into the array.
             Marshal.Copy(ptr, rgbValues, 0, numBytes);
+
+            // Unlock the bits.
+            img.UnlockBits(bmpData);
 
             string str = ByteArrayToDecimalString(rgbValues);
 
@@ -163,15 +185,29 @@ namespace picasa_ini_reader
 
         static void Main(string[] args)
         {
-            string path= @"..\..\..\data\";
+            string path = @"F:\db\";
+            //string path= @"..\..\..\data\";
             //string path = args[0];
+            //тут получается обработка непопорядку - плохо если делать обработку с продолжением
             foreach (string dir in Directory.GetDirectories(path))
             {
-                string[] files = Directory.GetFiles(dir, "*.jpg");
+                Console.WriteLine("processing: " + dir);
 
+                //create folder for faces
+                string dir_path = dir + "\\face";
+                System.IO.Directory.CreateDirectory(dir_path);
+
+                //правильней пройти по секциям ини файла, а не по изображениям
+                //по идее должны отталкиваться от ини файла, а не от изображений в папке?
+                //тут для каждого изображения смотрим его вхождение в ини файл
+                //он может не входить и ини файл может не существовать
+                string[] files = Directory.GetFiles(dir, "*.jpg");
                 foreach (string filename in files)
-                    GetFaces(filename, dir, false);
+                    GetFace(filename, dir, true);
             }
+
+            Console.WriteLine("all done");
+            Console.ReadLine();
         }
     }
 }
