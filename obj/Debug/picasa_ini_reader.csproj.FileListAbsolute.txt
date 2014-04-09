@@ -3,3 +3,5 @@ D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\bin\Debug\pic
 D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\bin\Debug\picasa_ini_reader.pdb
 D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\obj\Debug\picasa_ini_reader.exe
 D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\obj\Debug\picasa_ini_reader.pdb
+D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\bin\Debug\INIFileParser.dll
+D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\bin\Debug\INIFileParser.xml

@@ -8,6 +8,8 @@ using System.Runtime.InteropServices;
 using System.Drawing.Imaging;
 using System.Text.RegularExpressions;
 
+using IniParser;
+
 //http://unrar.me/2010/11/export-dannyh-ob-otmechennyh-lyudyah-iz-picasa/
 //http://stackoverflow.com/questions/2201393/how-to-reverse-a-rectanglef-to-a-picasa-face-hash
 //https://gist.github.com/fbuchinger/1073823
@@ -28,74 +30,76 @@ namespace picasa_ini_reader
         //    var size = H5S.getSimpleExtentDims(space);
         //}
 
-        public static void GetFace(string filename,string path, bool resize)
-        {
-            try
-            {
-                string ini_path = path + "\\.picasa.ini";
-                IniParser parser = new IniParser(ini_path);//если нету ини файла в папке то падает тут
+        //надо сделать на базе нового .ini reader 
 
-                String img_rects = parser.GetSetting(Path.GetFileName(filename), "faces");
-                if(img_rects!=null)
-                try// тут еще похоже не все типы файлов читает
-                {
-                    string[] str_rects = GetRectStrings(img_rects);
+        //public static void GetFace(string filename,string path, bool resize)
+        //{
+        //    try
+        //    {
+        //        string ini_path = path + "\\.picasa.ini";
+        //        IniParser parser = new IniParser(ini_path);//если нету ини файла в папке то падает тут
 
-                    for (int i = 0; i < str_rects.Length; ++i)
-                    {
-                        Bitmap img = (Bitmap)Image.FromFile(filename, true);
+        //        String img_rects = parser.GetSetting(Path.GetFileName(filename), "faces");
+        //        if(img_rects!=null)
+        //        try// тут еще похоже не все типы файлов читает
+        //        {
+        //            string[] str_rects = GetRectStrings(img_rects);
 
-                        RectangleF rectF = GetRectangle(str_rects[i]);
+        //            for (int i = 0; i < str_rects.Length; ++i)
+        //            {
+        //                Bitmap img = (Bitmap)Image.FromFile(filename, true);
 
-                        int im_w = img.Width;
-                        int im_h = img.Height;
+        //                RectangleF rectF = GetRectangle(str_rects[i]);
 
-                        rectF.X = rectF.X * im_w;
-                        rectF.Y = rectF.Y * im_h;
-                        rectF.Width = rectF.Width * im_w;
-                        rectF.Height = rectF.Height * im_h;
+        //                int im_w = img.Width;
+        //                int im_h = img.Height;
 
-                        Bitmap bmpCrop = img.Clone(rectF, img.PixelFormat);
+        //                rectF.X = rectF.X * im_w;
+        //                rectF.Y = rectF.Y * im_h;
+        //                rectF.Width = rectF.Width * im_w;
+        //                rectF.Height = rectF.Height * im_h;
 
-                        string text_path = Directory.GetParent(path).FullName + "\\db.txt";
-                        string crop_path = path + "\\face\\" +
-                            Path.GetFileNameWithoutExtension(filename) + "_" + i.ToString() + "_crop.png";
+        //                Bitmap bmpCrop = img.Clone(rectF, img.PixelFormat);
 
-                        //непонятно производиться ли копирование при присвоении?
-                        if (resize)
-                        {
-                            Bitmap resized = new Bitmap(bmpCrop, new Size(24, 32));//вынести в параметры
-                            resized.Save(crop_path,
-                                System.Drawing.Imaging.ImageFormat.Png);
+        //                string text_path = Directory.GetParent(path).FullName + "\\db.txt";
+        //                string crop_path = path + "\\face\\" +
+        //                    Path.GetFileNameWithoutExtension(filename) + "_" + i.ToString() + "_crop.png";
 
-                            Bitmap gr = ConvertGray(resized);
+        //                //непонятно производиться ли копирование при присвоении?
+        //                if (resize)
+        //                {
+        //                    Bitmap resized = new Bitmap(bmpCrop, new Size(24, 32));//вынести в параметры
+        //                    resized.Save(crop_path,
+        //                        System.Drawing.Imaging.ImageFormat.Png);
 
-                            AppendToTxtFile(gr, text_path);
-                        }
-                        else
-                        {
-                            bmpCrop.Save(crop_path,
-                                System.Drawing.Imaging.ImageFormat.Png);
+        //                    Bitmap gr = ConvertGray(resized);
 
-                            Bitmap gr = ConvertGray(bmpCrop);
+        //                    AppendToTxtFile(gr, text_path);
+        //                }
+        //                else
+        //                {
+        //                    bmpCrop.Save(crop_path,
+        //                        System.Drawing.Imaging.ImageFormat.Png);
 
-                            AppendToTxtFile(gr, text_path);
-                        }
-                    }
-                }
-                catch
-                {
-                    Console.WriteLine("error: " + Path.GetFileName(Path.GetDirectoryName(path + "\\"))
-                            + " " + Path.GetFileName(filename));
-                }
+        //                    Bitmap gr = ConvertGray(bmpCrop);
 
-            }
-            catch
-            {
-                //Console.WriteLine("error: " + Path.GetFileName(Path.GetDirectoryName(path + "\\"))+
-                //    " no .ini file?");
-            }
-        }
+        //                    AppendToTxtFile(gr, text_path);
+        //                }
+        //            }
+        //        }
+        //        catch
+        //        {
+        //            Console.WriteLine("error: " + Path.GetFileName(Path.GetDirectoryName(path + "\\"))
+        //                    + " " + Path.GetFileName(filename));
+        //        }
+
+        //    }
+        //    catch
+        //    {
+        //        //Console.WriteLine("error: " + Path.GetFileName(Path.GetDirectoryName(path + "\\"))+
+        //        //    " no .ini file?");
+        //    }
+        //}
 
         public static RectangleF GetRectangle(string hashstr)
         {
@@ -176,8 +180,8 @@ namespace picasa_ini_reader
             //String text = "faces=rect64(3f845bcb59418507),8e62398ebda8c1a5;rect64(9eb15e89b6b584c1),d10a8325c557b085";
 
             //case sensitive?
-            //Regex re = new Regex(@"(?<=rect64\()(\w|\d)+");
-            Regex re = new Regex(@"(?<=RECT64\()(\w|\d)+");
+            Regex re = new Regex(@"(?<=rect64\()(\w|\d)+");
+            //Regex re = new Regex(@"(?<=RECT64\()(\w|\d)+");
             string[] matches = re.Matches(str).Cast<Match>().Select(m => m.Value).ToArray();
 
             return matches;
@@ -185,10 +189,10 @@ namespace picasa_ini_reader
 
         static void Main(string[] args)
         {
-            string path = @"F:\db\";
-            //string path= @"..\..\..\data\";
+            //NEW VERSION
+            string path = @"..\..\..\data\";
             //string path = args[0];
-            //тут получается обработка непопорядку - плохо если делать обработку с продолжением
+
             foreach (string dir in Directory.GetDirectories(path))
             {
                 Console.WriteLine("processing: " + dir);
@@ -197,14 +201,86 @@ namespace picasa_ini_reader
                 string dir_path = dir + "\\face";
                 System.IO.Directory.CreateDirectory(dir_path);
 
-                //правильней пройти по секциям ини файла, а не по изображениям
-                //по идее должны отталкиваться от ини файла, а не от изображений в папке?
-                //тут для каждого изображения смотрим его вхождение в ини файл
-                //он может не входить и ини файл может не существовать
-                string[] files = Directory.GetFiles(dir, "*.jpg");
-                foreach (string filename in files)
-                    GetFace(filename, dir, true);
+                FileIniDataParser parser = new FileIniDataParser();
+                IniData data = parser.LoadFile(dir+"\\.picasa.ini");
+                foreach (SectionData section in data.Sections)
+                {
+                    if (section.SectionName.Contains(".jpg"))
+                    {
+                        //Console.WriteLine("[" + section.SectionName + "]");
+                        //Console.WriteLine(data[section.SectionName]["faces"]);
+
+                        string rects = data[section.SectionName]["faces"];
+
+                        string[] str_rects = GetRectStrings(rects);
+
+                        for (int i = 0; i < str_rects.Length; ++i)
+                        {
+                            Bitmap img = (Bitmap)Image.FromFile(dir + "\\" + section.SectionName, true);
+
+                            RectangleF rectF = GetRectangle(str_rects[i]);
+
+                            int im_w = img.Width;
+                            int im_h = img.Height;
+
+                            rectF.X = rectF.X * im_w;
+                            rectF.Y = rectF.Y * im_h;
+                            rectF.Width = rectF.Width * im_w;
+                            rectF.Height = rectF.Height * im_h;
+
+                            Bitmap bmpCrop = img.Clone(rectF, img.PixelFormat);
+
+                            string text_path = Directory.GetParent(path).FullName + "\\db.txt";
+                            string crop_path = path + "\\face\\" +
+                                Path.GetFileNameWithoutExtension(dir + "\\" + section.SectionName) + "_" + i.ToString() + "_crop.png";
+                            
+                            bool resize = true;
+                            //непонятно производиться ли копирование при присвоении?
+                            if (resize)
+                            {
+                                Bitmap resized = new Bitmap(bmpCrop, new Size(24, 32));//вынести в параметры
+                                resized.Save(crop_path,
+                                    System.Drawing.Imaging.ImageFormat.Png);
+
+                                Bitmap gr = ConvertGray(resized);
+
+                                AppendToTxtFile(gr, text_path);
+                            }
+                            else
+                            {
+                                bmpCrop.Save(crop_path,
+                                    System.Drawing.Imaging.ImageFormat.Png);
+
+                                Bitmap gr = ConvertGray(bmpCrop);
+
+                                AppendToTxtFile(gr, text_path);
+                            }
+                        }
+                    }
+                }
             }
+
+            //OLD
+            ////string path = @"F:\db\";
+            //string path= @"..\..\..\data\";
+            ////string path = args[0];
+            ////тут получается обработка непопорядку - плохо если делать обработку с продолжением
+            //foreach (string dir in Directory.GetDirectories(path))
+            //{
+            //    Console.WriteLine("processing: " + dir);
+
+            //    //create folder for faces
+            //    string dir_path = dir + "\\face";
+            //    System.IO.Directory.CreateDirectory(dir_path);
+
+            //    //правильней пройти по секциям ини файла, а не по изображениям
+            //    //по идее должны отталкиваться от ини файла, а не от изображений в папке?
+            //    //тут для каждого изображения смотрим его вхождение в ини файл
+            //    //он может не входить и ини файл может не существовать
+            //    string[] files = Directory.GetFiles(dir, "*.jpg");
+            //    //foreach (string filename in files)
+            //        //GetFace(filename, dir, true);
+            //}
 
             Console.WriteLine("all done");
             Console.ReadLine();
