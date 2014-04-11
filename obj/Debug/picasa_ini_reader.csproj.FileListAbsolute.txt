@@ -5,3 +5,17 @@ D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\obj\Debug\pic
 D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\obj\Debug\picasa_ini_reader.pdb
 D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\bin\Debug\INIFileParser.dll
 D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\bin\Debug\INIFileParser.xml
+D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\bin\Debug\ImageDownloader.dll
+D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\bin\Debug\WebDriver.dll
+D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\bin\Debug\WebDriver.Support.dll
+D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\bin\Debug\WebDriver.pdb
+D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\bin\Debug\WebDriver.xml
+D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\bin\Debug\WebDriver.Support.pdb
+D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\bin\Debug\WebDriver.Support.xml
+D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\bin\Debug\ImageDownloader.pdb
+D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\bin\Debug\Selenium.WebDriverBackedSelenium.dll
+D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\bin\Debug\ThoughtWorks.Selenium.Core.dll
+D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\bin\Debug\ThoughtWorks.Selenium.Core.pdb
+D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\bin\Debug\ThoughtWorks.Selenium.Core.xml
+D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\bin\Debug\Selenium.WebDriverBackedSelenium.pdb
+D:\MLukin_WORK\PROJECTS\Picasa\picasa_ini_reader\picasa_ini_reader\bin\Debug\Selenium.WebDriverBackedSelenium.xml
